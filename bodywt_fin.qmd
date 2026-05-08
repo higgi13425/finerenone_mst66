@@ -1,0 +1,50 @@
+---
+title: "Fin_bodywt"
+format: html
+editor: visual
+---
+
+## MST-66
+
+Experiment on 20 CBA/J mice. Daily weights.
+
+Finerenone started at 10 mg/kg daily by oral gavage on 4/16/2026,
+
+S typh infection by oral gavage on 4/23/2026.
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(janitor)
+```
+
+### Import data file
+
+```{r}
+dt <- readxl::read_excel("MST-66_bodywt.xlsx")
+```
+
+Now let's make the basic plot
+
+```{r}
+dt |> 
+  pivot_longer(cols = -c(Tx:cage),
+               names_to = 'date',
+               values_to = 'weight_g') |> mutate(date = excel_numeric_to_date(as.numeric(date))) |> 
+  ggplot() +
+  aes(x = date, y = weight_g, color = Tx, group = Tx) +
+  geom_point() +
+  geom_smooth() +
+  labs(x = 'Date', y = "Mouse Body Weight (g)", title = 'Finerenone Prevention in Salmonella typhimurium \nInflammation to Fibrosis Mouse Model') +
+  annotate(geom = 'text', x = as.Date("2026-04-15"), y = 23.5, label = "Finerenone", color = "red") +
+  annotate(geom = 'text', x = as.Date("2026-04-15"), y = 19.5, label = "Control", color = 'blue') +
+  annotate(geom = 'text', x = as.Date("2026-04-16"), y = 18, label = "Start Finerenone\non 16 April") + geom_segment(aes(x = as.Date("2026-04-16"),  xend  = as.Date("2026-04-16"), y = 17, yend = 15), color = 'black',
+  arrow = arrow(length = unit(0.2, "cm"))) +
+  annotate(geom = 'text', x = as.Date("2026-04-23"), y = 16.8, label = "Start Salmonella infxn\non 23 April") +
+   geom_segment(aes(x = as.Date("2026-04-23"),  xend  = as.Date("2026-04-23"), y = 16, yend = 15), color = 'black',
+  arrow = arrow(length = unit(0.2, "cm"))) +
+  scale_color_manual(values = c('red', 'blue')) +
+  theme_linedraw()+
+  theme(legend.position = 'none')
+
+```
